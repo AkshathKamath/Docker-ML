@@ -85,12 +85,12 @@ print('''Enter the data with the below mentioned order , where values are sepera
 Gender, Married, Dependents,Education,Self_Employed,LoanAmount,Loan_Amount_Term,Credit_History,Property_Area,TotalIncome\n''')
 
 while True:
-    user_data=input("Enter your Details: ")
+    user_data = input("Enter your Details: ")
     
-    if(user_data=="exit"):
+    if(user_data == "exit"):
         break
 
-    data = list(map(float, user_data.split(','))) # convert to float
+    data = list(map(float, user_data.split(','))) ## Convert to float
 
     # basic validation
     if(len(data)<10):
@@ -101,7 +101,7 @@ while True:
         predicted_value=model_forest.predict([data])
         print("/**********************************************************************/")
         if (predicted_value[0]):
-            print("\tCongratulations! your loan request is Approved")
+            print("\tCongratulations! your loan request is Approved and the output is: ",predicted_value[0])
         else:
-            print("\tSorry! your loan request is Rejected, please try again after 6 months")
+            print("\tSorry! your loan request is Rejected, please try again after 6 months and the output is: ",predicted_value[0])
         print("/**********************************************************************/")
