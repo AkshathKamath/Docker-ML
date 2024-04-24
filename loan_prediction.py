@@ -7,12 +7,13 @@ from sklearn import metrics
 import joblib
 
 
-df = pd.read_csv("./Datasets/train.csv") ## Load Dataset
+## Load Dataset
+df = pd.read_csv("./Datasets/train.csv")
 
 ## Categorising into numerical & categorical features
 numerical_cols = df.select_dtypes(include=['int64','float64']).columns.tolist()
 categorical_cols = df.select_dtypes(include=['object']).columns.tolist()
-categorical_cols.remove('Loan_Status')
+categorical_cols.remove('Loan_Status') ## Removing unnecessary cols
 categorical_cols.remove('Loan_ID')
 
 ## Mode Imputation of Categorical cols
@@ -26,13 +27,13 @@ for col in numerical_cols:
 ## Outliers Handling
 df[numerical_cols] = df[numerical_cols].apply(lambda x: x.clip(*x.quantile([0.05, 0.95])))
 
-# Log Transforamtion & Domain Processing
+## Log Transforamtion & Adding Income cols to single col
 df['LoanAmount'] = np.log(df['LoanAmount']).copy()
 df['TotalIncome'] = df['ApplicantIncome'] + df['CoapplicantIncome']
 df['TotalIncome'] = np.log(df['TotalIncome']).copy()
 
 
-## Dropping ApplicantIncome and CoapplicantIncome
+## Dropping ApplicantIncome and CoapplicantIncome cols
 df = df.drop(columns=['ApplicantIncome','CoapplicantIncome'])
 
 ## Label encoding categorical features
@@ -40,17 +41,17 @@ for col in categorical_cols:
     le = LabelEncoder()
     df[col] = le.fit_transform(df[col])
 
-#Encode  target column
+## Encode  target column
 df['Loan_Status'] = le.fit_transform(df['Loan_Status'])
 
-# Train test split
+## Split into independent & target features
 X = df.drop(columns=['Loan_Status', 'Loan_ID'])
 y = df.Loan_Status
 RANDOM_SEED = 6
 
-#X_train, X_test, y_train, y_test = train_test_split(X,y, test_size =0.3, random_state = RANDOM_SEED)
+## Train-test split not needed as we build model on entire dataset and predict with values provided in input
 
-# RandomForest
+## RandomForest
 rf = RandomForestClassifier(random_state=RANDOM_SEED)
 param_grid_forest = {
     'n_estimators': [200,400, 700],
@@ -69,7 +70,7 @@ grid_forest = GridSearchCV(
     )
 model_forest = grid_forest.fit(X, y)
 
-joblib.dump(model_forest, './Trained-Models/RF_Loan_model.pkl')
+joblib.dump(model_forest, './Trained-Models/RF_Loan_model.pkl') ## Saving the model
 
 print("Welcome to Loan Prediction Application")
 print("Enter your details to get to know the application status as per the instruction below:")
@@ -85,19 +86,19 @@ print('''Enter the data with the below mentioned order , where values are sepera
 Gender, Married, Dependents,Education,Self_Employed,LoanAmount,Loan_Amount_Term,Credit_History,Property_Area,TotalIncome\n''')
 
 while True:
-    user_data = input("Enter your Details: ")
+    user_data = input("Enter your Details: ") ## Input
     
     if(user_data == "exit"):
         break
 
     data = list(map(float, user_data.split(','))) ## Convert to float
 
-    # basic validation
+    ## Validate Input
     if(len(data)<10):
         print("Incomplete data provided!!")
     else:
         
-        # predicting the value
+        ## Prediction
         predicted_value=model_forest.predict([data])
         print("/**********************************************************************/")
         if (predicted_value[0]):
